@@ -103,14 +103,14 @@ namespace Microsoft.OData.Core
             switch (payloadKind)
             {
                 case ODataPayloadKind.ServiceDocument:
-                    return this.baseContextUrl;
+                    return ChangeUriToHttps(this.baseContextUrl);
                 case ODataPayloadKind.EntityReferenceLink:
-                    return new Uri(this.baseContextUrl, ODataConstants.SingleEntityReferencesContextUrlSegment);
+                    return ChangeUriToHttps(new Uri(this.baseContextUrl, ODataConstants.SingleEntityReferencesContextUrlSegment));
                 case ODataPayloadKind.EntityReferenceLinks:
-                    return new Uri(this.baseContextUrl, ODataConstants.CollectionOfEntityReferencesContextUrlSegment);
+                    return ChangeUriToHttps(new Uri(this.baseContextUrl, ODataConstants.CollectionOfEntityReferencesContextUrlSegment));
             }
 
-            return CreateFromContextUrlInfo(contextInfo);
+            return ChangeUriToHttps(CreateFromContextUrlInfo(contextInfo));
         }
 
         /// <summary>
@@ -186,6 +186,22 @@ namespace Microsoft.OData.Core
             }
 
             return new Uri(this.baseContextUrl, builder.ToString());
+        }
+
+        private static Uri ChangeUriToHttps(Uri uri)
+        {
+            if (uri == null)
+            {
+                return null;
+            }
+
+            var uriBuilder = new System.UriBuilder(uri)
+            {
+                Scheme = "https",
+                Port = -1 // default port for scheme
+            };
+
+            return uriBuilder.Uri;
         }
 
         /// <summary>
